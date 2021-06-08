@@ -1,49 +1,50 @@
-//Importing required library files
+//importing required header files
+#include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-//Initializing the OLED display
+
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-String para="";
+#define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+String para=""; //variable to store the input string
 void setup() {
-  Serial.begin(9600);//Setting the baud rate for communication with Serial Monitor
+  Serial.begin(9600);
 
+  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3D)) { // Address 0x3D for 128x64
-    Serial.println(F("SSD1306 allocation failed"));//Printing error message if display is not connected or allocated
-    for(;;);//infinite loop waiting for display to be allocated
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;); // Don't proceed, loop forever
   }
-  delay(2000);// delay of 2000
-  display.clearDisplay();//clear the display
 
-  display.setTextSize(5*7);//setting the text size
-  display.setTextColor(WHITE);//setting the color
-  display.setCursor(0, 0);//setting the cursor where to start printing
-  while(Serial.available()==0)//checking if data is available in serial monitor
+  // Show initial display buffer contents on the screen --
+  // the library initializes this with an Adafruit splash screen.
+  display.display();
+  delay(2000); // Pause for 2 seconds
+  display.clearDisplay(); // Clear the buffer
+  
+}
+void loop() {
+display.setTextSize(1);//setting text size 
+display.setTextColor(SSD1306_WHITE);//setting text color
+display.setCursor(0,0);//setting text position
+while(Serial.available()==0)//checking if data is available in serial monitor
 {
   //infinite loop waiting for the data
 }
 para=Serial.readString();//reading the data
 display.print(para);//displaying it on the oled display
-setTextWrap(true);//default function for wraping the text in gfx 
-setTextScroll(true);// for scrolling the data
+display.display();//to display the data available
+if(para.charAt(176)!=" ")
+{
+display.clearDisplay();//clearing the screen 
+display.setCursor(0,0);//setting text position
+display.print(para);//displaying it on the oled display
 display.display();//to display the data available
 }
-
-void loop() {
-  
-}
-void setTextWrap(boolean w)//function for text wraping
-{
-  w=true;
-}
-void setTextScroll(boolean z)//function for text scrolling
-{
-  delay(500);
-  z=true;
-  
+display.clearDisplay();//clearing the screen
 }
